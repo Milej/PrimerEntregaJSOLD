@@ -49,66 +49,99 @@ while(welcome === 1 || welcome === 2){
     if(option === 1){
 
       // Diferentes variables para cargar el producto
-      let id = parseInt(prompt("Código del producto"));
-      let name = prompt("Nombre");
-      let brand = prompt("Marca");
-      let size = prompt("Talle"); 
-      let price = parseInt(prompt("Precio"));
+      let id = parseInt(prompt("Código del producto. Por ejemplo: 1001"));
+      let name = prompt("Nombre. Por ejemplo: Zapatilla, Mochila");
+      let brand = prompt("Marca. Por ejemplo: Nike, Adidas");
+      let size = prompt("Talle. Por ejemplo: S, M, XL"); 
+      let price = parseInt(prompt("Precio. Por ejemplo: 2500, 17000"));
 
+      // Asignamos una nueva instancia del producto
       let newProduct = new Product(id, name, brand, size, price, 1);
       AddProduct(products, newProduct);
 
     }else if(option === 0){
 
+      // Mostramos el menu
       welcome = ShowMenu();
 
     }
 
   }else if(welcome === 2){
 
+    // Mostramos el menu del usuario
     let option = ShowUserMenu(products);
-  
-    if(option === 0){
-  
-      welcome = ShowMenu();
-  
-    }else if(option === 1){
-
-      let search = prompt(`Buscar productos por marca. \nLista:\n${GetProductsBrand(products)}`);
-
-      while(search == ""){
-
-        search = prompt(`Buscar productos por marca. \nLista:\n${GetProductsBrand(products)} \nDebes completar el campo para continuar.`);
-
-      }
-
-      let filter = products.filter( product => product.brand == search );
-      
-      if(filter.length > 0){
-
-        let selectedProduct = parseInt(prompt(`Productos encontrados: \n${GetFilterProducts(filter)} \n Para agregar al carrito ingrese el codigo del producto`));
-        
-        for (let i = 0; i < filter.length; i++) {
-
-          if(selectedProduct === filter[i].code) {
-
-            cart.push(filter[i]);
-            option = parseInt(prompt(`1. Para seguir comprando. \n9. Para finalizar compra. \nTu carrito de compras: \n${GetProductDetail(cart)}`));
-            break;
-          }
-          
-        }
-
-      }
     
-    }else if(option === 2){
+    switch (option) {
 
+      case 0: // Mostramos el menu del usuario
+        welcome = ShowMenu();
+        break;
 
-    }else if(option === 9){
-      alert("Finalizar compra")
+      case 1: // Mostramos el menu para la busqueda por marca
+        let brands = GetProductsBrand(products);
+        let brandString = "";
+        brands.forEach( (brand) => brandString += `${brand}\n`)
+  
+        let search = prompt(`Buscar productos por marca. \nMarcas disponibles:\n${brandString}`);
+  
+        while(!brands.includes(search)){
+  
+          search = prompt(`Buscar productos por marca. \nMarcas disponibles:\n${brandString}`);
+  
+        }
+  
+        // Filtramos por marca
+        let filter = products.filter( product => product.brand === search );
+        
+        if(filter.length > 0){
+  
+          shopping = AddProductToCart(parseInt(prompt(`Productos encontrados: \n${GetStockProducts(filter)} \nPara agregar al carrito ingrese el codigo del producto`)), filter);
+  
+        }
+  
+        // while(shopping !== 1 || shopping !== 2){
+  
+        //   shopping = KeepShopping();
+      
+        // }
+  
+        // if(shopping === 1){
+        //   option = 1;
+        // }else if(shopping === 2){
+        //   option = 2;
+        // }
+        break;
+        
+      case 2:
+        shopping = AddProductToCart(parseInt(prompt(`Productos: \n${GetStockProducts(products)} \n\nPara agregar al carrito ingrese el codigo del producto`)), products);
+
+        // while(shopping === 1){
+
+        //   shopping = KeepShopping();
+      
+        // }
+
+        // if(shopping === 2){
+        //   // let subtotal = cart.reduce(acummulator, cart.price)
+        //   // alert(`Has comprado: ${GetProductDetail(cart)} \n\n`);
+        //   option = 4;
+
+        // }
+        break;
+
+      case 3:
+        console.log('Ver carrito');
+        break;
+
+      case 4:
+        console.log("finalizar compra");
+        break;
+        
+      default:
+        welcome = ShowMenu();
+        break;
     }
-  
-  
+
   }
 
 }
@@ -127,26 +160,39 @@ function GetProductsName(list){
 
 function GetProductsBrand(list){
 
-  let productString = "";
-  let productList = new Array();
+  let brandList = new Array();
 
-  for(let i = 0; i < list.length; i){
-
-    for (let c = 0; c < productList.length; c++) {
-      
-      if(productList[c] != list[i].brand){
-
-        productList.push(list[i].brand);
-        break;
-      }
-      
-    }  
+  for(let i = 0; i < list.length; i++){
     
+    if(!brandList.includes(list[i].brand)){
+
+      brandList.push(list[i].brand);
+      
+
+    }
+
   }
 
-  console.log(productList);
+  return brandList;
 
-  return productString;
+}
+
+function GetProductsCode(list){
+
+  let codeList = new Array();
+
+  for(let i = 0; i < list.length; i++){
+    
+    if(!codeList.includes(list[i].code)){
+
+      codeList.push(list[i].code);
+      
+
+    }
+
+  }
+
+  return codeList;
 
 }
 
@@ -172,7 +218,7 @@ function GetProductDetail(list){
 
 }
 
-function GetFilterProducts(list){
+function GetStockProducts(list){
 
   let productList = "";
 
@@ -209,10 +255,41 @@ function ShowUserMenu(){
   return parseInt(prompt(`1. Para buscar productos. \n2. Ver todos los productos. \n0. Para volver al menú principal.`));
 }
 
+function ShowShoppingMenu(){
+  return parseInt(prompt(`1. Para buscar productos. \n2. Ver todos los productos. \n3. Ver carrito. \n4. Finalizar compra.`));
+}
+
 function ShowMenu(){
   return parseInt(prompt("Bienvenido a TiendaMax \n 1. Para ingresar a su panel de control \n 2. Para ingresar a comprar"));
 }
 
 function ShowCatalogue(products){
   return prompt(`Inserte el código del producto que desea comprar \nCATÁLOGO DE PRODUCTOS \n${GetProductDetail(products)}`)
+}
+
+function KeepShopping(){
+  return prompt(`1. Para seguir comprando. \n2. Para finalizar compra`)
+}
+
+function AddProductToCart(selectedProduct, productArray){
+
+  let codes = GetProductsCode(productArray);
+
+  while(!codes.includes(selectedProduct)){
+    selectedProduct = parseInt(prompt(`Productos: \n${GetStockProducts(productArray)} \n\nPara agregar al carrito ingrese el codigo del producto`));
+  }
+
+  for (let i = 0; i < productArray.length; i++) {
+
+    if(selectedProduct === productArray[i].code) {
+
+      cart.push(productArray[i]);
+      
+      break;
+    }
+    
+  }
+
+  return parseInt(prompt(`1. Para seguir comprando. \n2. Para finalizar compra. \n\nTu carrito de compras: \n${GetProductDetail(cart)}`));
+
 }
