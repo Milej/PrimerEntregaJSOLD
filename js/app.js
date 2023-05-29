@@ -35,7 +35,7 @@ const products = [
 let newProducts = new Array();
 
 // Obtiene el valor del input del usuario
-let welcome = ShowMenu();
+let welcome = ShowMainMenu();
 
 let cart = new Array();
 
@@ -62,7 +62,7 @@ while(welcome === 1 || welcome === 2){
     }else if(option === 0){
 
       // Mostramos el menu
-      welcome = ShowMenu();
+      welcome = ShowMainMenu();
 
     }
 
@@ -70,11 +70,10 @@ while(welcome === 1 || welcome === 2){
 
     // Mostramos el menu del usuario
     let option = ShowUserMenu(products);
-    
+    console.log("option " + option);
     switch (option) {
-
       case 0: // Mostramos el menu del usuario
-        welcome = ShowMenu();
+        welcome = ShowMainMenu();
         break;
 
       case 1: // Mostramos el menu para la busqueda por marca
@@ -94,8 +93,17 @@ while(welcome === 1 || welcome === 2){
         let filter = products.filter( product => product.brand === search );
         
         if(filter.length > 0){
-  
-          shopping = AddProductToCart(parseInt(prompt(`Productos encontrados: \n${GetStockProducts(filter)} \nPara agregar al carrito ingrese el codigo del producto`)), filter);
+
+          // MOSTRAR LA LISTA DE LOS PRODUCTOS ENCONTRADOS
+          // OBTENER EL CODIGO QUE INGRESA EL USUARIO
+          // PREGUNTAR SI QUIERE SEGUIR COMPRANDO O SI QUIERE FINALIZAR LA COMPRA
+          // EN CASO DE QUE QUIERA SEGUIR COMPRANDO 1
+          // EN CASO DE QUE QUIERA FINALIZAR LA COMPRA 2
+          
+          
+          // let productCode = GetProductCode(filter);
+          // console.log(productCode);
+          // AddProductToCart(productCode);
   
         }
   
@@ -105,40 +113,24 @@ while(welcome === 1 || welcome === 2){
       
         // }
   
-        // if(shopping === 1){
-        //   option = 1;
-        // }else if(shopping === 2){
-        //   option = 2;
+        // if(shopping === 2){
+        //   option = 3;
         // }
         break;
         
       case 2:
-        shopping = AddProductToCart(parseInt(prompt(`Productos: \n${GetStockProducts(products)} \n\nPara agregar al carrito ingrese el codigo del producto`)), products);
-
-        // while(shopping === 1){
-
-        //   shopping = KeepShopping();
-      
-        // }
-
-        // if(shopping === 2){
-        //   // let subtotal = cart.reduce(acummulator, cart.price)
-        //   // alert(`Has comprado: ${GetProductDetail(cart)} \n\n`);
-        //   option = 4;
-
-        // }
+        // MOSTRAR TODOS LOS PRODUCTOS
+        // OBTENER EL CODIGO QUE INGRESA EL USUARIO
+        // PREGUNTAR SI QUIERE SEGUIR COMPRANDO O SI QUIERE FINALIZAR LA COMPRA
+        // EN CASO DE QUE QUIERA SEGUIR COMPRANDO 1
+        // EN CASO DE QUE QUIERA FINALIZAR LA COMPRA 2
+        
+        // shopping = AddProductToCart(parseInt(prompt(`Productos: \n${GetStockProducts(products)} \n\nPara agregar al carrito ingrese el codigo del producto`)), products);
         break;
 
       case 3:
-        console.log('Ver carrito');
-        break;
-
-      case 4:
+        // EN CASO DE QUE ELIJA 2, MOSTRAR LOS PRODUCTOS A COMPRAR. MOSTRAR EL SUBTOTAL, EL IVA Y EL TOTAL. LE DAMOS UNA VENTANIA PARA QUE PUEDA ESCRIBIR COMPRAR Y FINALICE LA COMPRA Y SE CIERRA EL PROGRAMA.
         console.log("finalizar compra");
-        break;
-        
-      default:
-        welcome = ShowMenu();
         break;
     }
 
@@ -177,6 +169,18 @@ function GetProductsBrand(list){
 
 }
 
+// Devuelve un int de lo que el usuario escribio en el input, pero revisa que exista en la lista pasada de parametros
+function GetProductCode(code, listOfProducts){
+
+  let allCodes = GetProductsCode(listOfProducts);
+
+  while(!allCodes.includes(code)){
+    return parseInt(prompt(`Productos: \n${GetStockProducts(listOfProducts)} \n\nPara agregar al carrito ingrese el codigo del producto`));
+  }
+
+}
+
+// Devuelve el array con los codigos del array pasado por parametro
 function GetProductsCode(list){
 
   let codeList = new Array();
@@ -196,6 +200,7 @@ function GetProductsCode(list){
 
 }
 
+// MEJORAR
 function GetProductDetail(list){
 
   let productList = "";
@@ -218,6 +223,7 @@ function GetProductDetail(list){
 
 }
 
+// MEJORAR
 function GetStockProducts(list){
 
   let productList = "";
@@ -234,62 +240,58 @@ function GetStockProducts(list){
 
 }
 
+// Agrega un producto de la clase Product que se la pasa por parametro a la lista que se le pase por paramentro
 function AddProduct(list, product){
   list.push(product);
-  alert("Nuevo producto añadido");
+  alert(`${product.name} añadido`);
 }
 
-function GoBack(selection){
-
-  if(selection == "volver"){
-    ShowMenu;
-  }
-
-}
-
-function ShowAdminMenu(products){
-  return parseInt(prompt(`1. Para agregar un producto. \n0. Para volver al menú principal. \n\nTienes los siguientes productos en el catálogo: \n${GetProductsName(products)}`));
-}
-
-function ShowUserMenu(){
-  return parseInt(prompt(`1. Para buscar productos. \n2. Ver todos los productos. \n0. Para volver al menú principal.`));
-}
-
-function ShowShoppingMenu(){
-  return parseInt(prompt(`1. Para buscar productos. \n2. Ver todos los productos. \n3. Ver carrito. \n4. Finalizar compra.`));
-}
-
-function ShowMenu(){
-  return parseInt(prompt("Bienvenido a TiendaMax \n 1. Para ingresar a su panel de control \n 2. Para ingresar a comprar"));
-}
-
-function ShowCatalogue(products){
-  return prompt(`Inserte el código del producto que desea comprar \nCATÁLOGO DE PRODUCTOS \n${GetProductDetail(products)}`)
-}
-
+// 
 function KeepShopping(){
   return prompt(`1. Para seguir comprando. \n2. Para finalizar compra`)
 }
 
-function AddProductToCart(selectedProduct, productArray){
+// Devuelve un int para saber que hacer luego y otras cosas dentro de la funcion
+function AddProductToCart(selectedProduct){
 
-  let codes = GetProductsCode(productArray);
+  
 
-  while(!codes.includes(selectedProduct)){
-    selectedProduct = parseInt(prompt(`Productos: \n${GetStockProducts(productArray)} \n\nPara agregar al carrito ingrese el codigo del producto`));
-  }
+  for (let i = 0; i < listOfProducts.length; i++) {
 
-  for (let i = 0; i < productArray.length; i++) {
+    if(selectedProduct === listOfProducts[i].code) {
 
-    if(selectedProduct === productArray[i].code) {
-
-      cart.push(productArray[i]);
+      cart.push(listOfProducts[i]);
       
       break;
     }
     
   }
 
-  return parseInt(prompt(`1. Para seguir comprando. \n2. Para finalizar compra. \n\nTu carrito de compras: \n${GetProductDetail(cart)}`));
+  return parseInt(prompt(`1. Para finalizar compra. Enter para continuar comprando. \n\nTu carrito de compras: \n${GetProductDetail(cart)}`));
 
+}
+
+// Devuelve un int para saber que hacer luego
+function ShowAdminMenu(products){
+  return parseInt(prompt(`1. Para agregar un producto. \n0. Para volver al menú principal. \n\nTienes los siguientes productos en el catálogo: \n${GetProductsName(products)}`));
+}
+
+// Devuelve un int para saber que hacer luego
+function ShowUserMenu(){
+  return parseInt(prompt(`1. Para buscar productos. \n2. Ver todos los productos. \n0. Para volver al menú principal.`));
+}
+
+// Devuelve un int para saber que hacer luego
+function ShowShoppingMenu(){
+  return parseInt(prompt(`1. Para buscar productos. \n2. Ver todos los productos. \n3. Ver carrito. \n4. Finalizar compra.`));
+}
+
+// Devuelve un int para saber que hacer luego
+function ShowMainMenu(){
+  return parseInt(prompt("Bienvenido a TiendaMax \n 1. Para ingresar a su panel de control \n 2. Para ingresar a comprar"));
+}
+
+// Devuelve lo que el usuario escribio en el input para elegir un producto del catalogo
+function ShowCatalogue(products){
+  return prompt(`Inserte el código del producto que desea comprar \nCATÁLOGO DE PRODUCTOS \n${GetProductDetail(products)}`)
 }
