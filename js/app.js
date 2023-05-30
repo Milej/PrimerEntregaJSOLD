@@ -70,228 +70,73 @@ while(welcome === 1 || welcome === 2){
 
     // Mostramos el menu del usuario
     let option = ShowUserMenu(products);
-    console.log("option " + option);
+
     switch (option) {
-      case 0: // Mostramos el menu del usuario
+      case 0: // Mostramos el menu principal
         welcome = ShowMainMenu();
         break;
 
       case 1: // Mostramos el menu para la busqueda por marca
-        let brands = GetProductsBrand(products);
-        let brandString = "";
-        brands.forEach( (brand) => brandString += `${brand}\n`)
-  
-        let search = prompt(`Buscar productos por marca. \nMarcas disponibles:\n${brandString}`);
-  
-        while(!brands.includes(search)){
-  
-          search = prompt(`Buscar productos por marca. \nMarcas disponibles:\n${brandString}`);
-  
-        }
+
+        let search = ShowBrands(products);
   
         // Filtramos por marca
-        let filter = products.filter( product => product.brand === search );
-        
-        if(filter.length > 0){
+        let filterProducts = products.filter( product => product.brand === search );
 
-          // MOSTRAR LA LISTA DE LOS PRODUCTOS ENCONTRADOS
-          // OBTENER EL CODIGO QUE INGRESA EL USUARIO
-          // PREGUNTAR SI QUIERE SEGUIR COMPRANDO O SI QUIERE FINALIZAR LA COMPRA
-          // EN CASO DE QUE QUIERA SEGUIR COMPRANDO 1
-          // EN CASO DE QUE QUIERA FINALIZAR LA COMPRA 2
-          
-          
-          // let productCode = GetProductCode(filter);
-          // console.log(productCode);
-          // AddProductToCart(productCode);
+        if(filterProducts.length > 0){
+
+          // Muestra la lista de los productos encontrados, cuando el usuario completa el campo devuelve el codigo del producto
+          let code = ShowCatalogue(filterProducts);
+
+          // Agregamos el producto a la lista del carrito
+          AddProductToCart(code, cart, products);
+
+          // Pregunta si quiere seguir comprando o finalizar la compra
+          // EN CASO DE QUE QUIERA FINALIZAR LA COMPRA 1
+          let shopping = KeepShopping(cart);
+
+          // En caso de que elija 1 le mostramos los productos a comprar
+          if(shopping === 1){
+
+            shopping = FinishShopping(cart);
+
+            if(shopping === "COMPRAR"){
+              console.log('Muchas gracias por tu compra <3');
+              welcome = null;
+            }
+
+          }
   
         }
-  
-        // while(shopping !== 1 || shopping !== 2){
-  
-        //   shopping = KeepShopping();
-      
-        // }
-  
-        // if(shopping === 2){
-        //   option = 3;
-        // }
         break;
         
-      case 2:
-        // MOSTRAR TODOS LOS PRODUCTOS
-        // OBTENER EL CODIGO QUE INGRESA EL USUARIO
-        // PREGUNTAR SI QUIERE SEGUIR COMPRANDO O SI QUIERE FINALIZAR LA COMPRA
-        // EN CASO DE QUE QUIERA SEGUIR COMPRANDO 1
-        // EN CASO DE QUE QUIERA FINALIZAR LA COMPRA 2
-        
-        // shopping = AddProductToCart(parseInt(prompt(`Productos: \n${GetStockProducts(products)} \n\nPara agregar al carrito ingrese el codigo del producto`)), products);
+      case 2: // Catalogo entero
+        // Muestra todos los productos y devuelve el codigo del producto
+        let code = ShowCatalogue(products);
+
+        // Agregamos el producto a la lista del carrito
+        AddProductToCart(code, cart, products);
+
+        // Pregunta si quiere seguir comprando o finalizar la compra
+        // EN CASO DE QUE QUIERA FINALIZAR LA COMPRA 1
+        let shopping = KeepShopping(cart);
+
+        // En caso de que elija 1 le mostramos los productos a comprar
+        if(shopping === 1){
+
+          shopping = FinishShopping(cart);
+
+          if(shopping === "COMPRAR"){
+            console.log('Muchas gracias por tu compra <3');
+            welcome = null;
+          }
+
+        }
         break;
 
-      case 3:
-        // EN CASO DE QUE ELIJA 2, MOSTRAR LOS PRODUCTOS A COMPRAR. MOSTRAR EL SUBTOTAL, EL IVA Y EL TOTAL. LE DAMOS UNA VENTANIA PARA QUE PUEDA ESCRIBIR COMPRAR Y FINALICE LA COMPRA Y SE CIERRA EL PROGRAMA.
-        console.log("finalizar compra");
-        break;
     }
 
   }
 
 }
 
-function GetProductsName(list){
-
-  let productList = "";
-
-  list.map( (product) => {
-    productList += product.name + "\n";
-  })
-
-  return productList;
-
-}
-
-function GetProductsBrand(list){
-
-  let brandList = new Array();
-
-  for(let i = 0; i < list.length; i++){
-    
-    if(!brandList.includes(list[i].brand)){
-
-      brandList.push(list[i].brand);
-      
-
-    }
-
-  }
-
-  return brandList;
-
-}
-
-// Devuelve un int de lo que el usuario escribio en el input, pero revisa que exista en la lista pasada de parametros
-function GetProductCode(code, listOfProducts){
-
-  let allCodes = GetProductsCode(listOfProducts);
-
-  while(!allCodes.includes(code)){
-    return parseInt(prompt(`Productos: \n${GetStockProducts(listOfProducts)} \n\nPara agregar al carrito ingrese el codigo del producto`));
-  }
-
-}
-
-// Devuelve el array con los codigos del array pasado por parametro
-function GetProductsCode(list){
-
-  let codeList = new Array();
-
-  for(let i = 0; i < list.length; i++){
-    
-    if(!codeList.includes(list[i].code)){
-
-      codeList.push(list[i].code);
-      
-
-    }
-
-  }
-
-  return codeList;
-
-}
-
-// MEJORAR
-function GetProductDetail(list){
-
-  let productList = "";
-
-  list.map( (product) => {
-
-    if(product.stock > 0){
-
-      productList += `Cód. ${product.code} - ${product.name} ${product.brand} $${product.price}\n`;
-    
-    }else{
-
-      productList += `Cód. ${product.code} - ${product.name} ${product.brand} $${product.price} (sin stock)\n`;
-
-    }
-  
-  })
-
-  return productList;
-
-}
-
-// MEJORAR
-function GetStockProducts(list){
-
-  let productList = "";
-
-  list.forEach(product => {
-
-    if(product.stock > 0)
-    
-    productList += `Cód. ${product.code} - ${product.name} ${product.brand} $${product.price}\n`;
-
-  });              
-  
-  return productList;
-
-}
-
-// Agrega un producto de la clase Product que se la pasa por parametro a la lista que se le pase por paramentro
-function AddProduct(list, product){
-  list.push(product);
-  alert(`${product.name} añadido`);
-}
-
-// 
-function KeepShopping(){
-  return prompt(`1. Para seguir comprando. \n2. Para finalizar compra`)
-}
-
-// Devuelve un int para saber que hacer luego y otras cosas dentro de la funcion
-function AddProductToCart(selectedProduct){
-
-  
-
-  for (let i = 0; i < listOfProducts.length; i++) {
-
-    if(selectedProduct === listOfProducts[i].code) {
-
-      cart.push(listOfProducts[i]);
-      
-      break;
-    }
-    
-  }
-
-  return parseInt(prompt(`1. Para finalizar compra. Enter para continuar comprando. \n\nTu carrito de compras: \n${GetProductDetail(cart)}`));
-
-}
-
-// Devuelve un int para saber que hacer luego
-function ShowAdminMenu(products){
-  return parseInt(prompt(`1. Para agregar un producto. \n0. Para volver al menú principal. \n\nTienes los siguientes productos en el catálogo: \n${GetProductsName(products)}`));
-}
-
-// Devuelve un int para saber que hacer luego
-function ShowUserMenu(){
-  return parseInt(prompt(`1. Para buscar productos. \n2. Ver todos los productos. \n0. Para volver al menú principal.`));
-}
-
-// Devuelve un int para saber que hacer luego
-function ShowShoppingMenu(){
-  return parseInt(prompt(`1. Para buscar productos. \n2. Ver todos los productos. \n3. Ver carrito. \n4. Finalizar compra.`));
-}
-
-// Devuelve un int para saber que hacer luego
-function ShowMainMenu(){
-  return parseInt(prompt("Bienvenido a TiendaMax \n 1. Para ingresar a su panel de control \n 2. Para ingresar a comprar"));
-}
-
-// Devuelve lo que el usuario escribio en el input para elegir un producto del catalogo
-function ShowCatalogue(products){
-  return prompt(`Inserte el código del producto que desea comprar \nCATÁLOGO DE PRODUCTOS \n${GetProductDetail(products)}`)
-}
